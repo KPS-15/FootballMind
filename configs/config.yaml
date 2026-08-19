@@ -1,0 +1,34 @@
+system:
+  name: "FootballMind"
+  device: "auto" # auto, cuda, cpu
+  log_level: "INFO"
+  seed: 42
+
+pitch:
+  length: 105.0 # meters
+  width: 68.0   # meters
+  goal_width: 7.32 # meters
+  goal_depth: 2.44 # meters
+
+vision:
+  yolo_model: "yolov8m.pt"
+  confidence_threshold: 0.35
+  iou_threshold: 0.45
+  tracker_type: "bytetrack"
+  fps_process: 15 # target processing FPS
+  frame_skip: 2
+
+data:
+  demo_mode: true
+  dataset_dir: "datasets/"
+  output_dir: "outputs/"
+
+models:
+  action_predictor_path: "models/action_predictor.pt"
+  pass_predictor_path: "models/pass_predictor.pt"
+  defensive_danger_path: "models/danger_model.pt"
+
+backend:
+  host: "127.0.0.1"
+  port: 8000
+  upload_dir: "uploads/"

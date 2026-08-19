@@ -1,0 +1,134 @@
+[
+  {
+    "run_id": "run_20260817_230651",
+    "timestamp": "2026-08-17T23:06:51.024746",
+    "experiment_name": "FootballTemporalLSTM_Action_Training",
+    "hyperparameters": {
+      "epochs": 15,
+      "lr": 0.002,
+      "hidden_size": 64,
+      "num_actions": 8,
+      "input_size": 16,
+      "sequence_length": 10
+    },
+    "metrics": {
+      "train_loss": 0.127,
+      "val_loss": 0.0846,
+      "val_accuracy": 1.0
+    },
+    "artifact_paths": {
+      "model_weights": "models\\action_predictor.pt"
+    },
+    "notes": "Trained on synthetic multi-match sequence dataset"
+  },
+  {
+    "run_id": "run_20260817_230746",
+    "timestamp": "2026-08-17T23:07:46.541655",
+    "experiment_name": "FootballMind_Full_Model_Evaluation",
+    "hyperparameters": {
+      "eval_samples": 3080
+    },
+    "metrics": {
+      "total_samples": 3080,
+      "accuracy": 1.0,
+      "top_3_accuracy": 1.0,
+      "mean_confidence": 0.919,
+      "expected_calibration_error_ece": 0.0813,
+      "brier_score": 0.0076,
+      "log_loss": 0.0848,
+      "macro_f1_score": 0.125,
+      "confusion_matrix": {
+        "PASS": {
+          "PASS": 0,
+          "DRIBBLE": 0,
+          "SHOT": 0,
+          "CROSS": 0,
+          "TACKLE": 0,
+          "CARRY": 0,
+          "HOLD": 0,
+          "CLEARANCE": 0
+        },
+        "DRIBBLE": {
+          "PASS": 0,
+          "DRIBBLE": 0,
+          "SHOT": 0,
+          "CROSS": 0,
+          "TACKLE": 0,
+          "CARRY": 0,
+          "HOLD": 0,
+          "CLEARANCE": 0
+        },
+        "SHOT": {
+          "PASS": 0,
+          "DRIBBLE": 0,
+          "SHOT": 0,
+          "CROSS": 0,
+          "TACKLE": 0,
+          "CARRY": 0,
+          "HOLD": 0,
+          "CLEARANCE": 0
+        },
+        "CROSS": {
+          "PASS": 0,
+          "DRIBBLE": 0,
+          "SHOT": 0,
+          "CROSS": 0,
+          "TACKLE": 0,
+          "CARRY": 0,
+          "HOLD": 0,
+          "CLEARANCE": 0
+        },
+        "TACKLE": {
+          "PASS": 0,
+          "DRIBBLE": 0,
+          "SHOT": 0,
+          "CROSS": 0,
+          "TACKLE": 0,
+          "CARRY": 0,
+          "HOLD": 0,
+          "CLEARANCE": 0
+        },
+        "CARRY": {
+          "PASS": 0,
+          "DRIBBLE": 0,
+          "SHOT": 0,
+          "CROSS": 0,
+          "TACKLE": 0,
+          "CARRY": 0,
+          "HOLD": 0,
+          "CLEARANCE": 0
+        },
+        "HOLD": {
+          "PASS": 0,
+          "DRIBBLE": 0,
+          "SHOT": 0,
+          "CROSS": 0,
+          "TACKLE": 0,
+          "CARRY": 0,
+          "HOLD": 3080,
+          "CLEARANCE": 0
+        },
+        "CLEARANCE": {
+          "PASS": 0,
+          "DRIBBLE": 0,
+          "SHOT": 0,
+          "CROSS": 0,
+          "TACKLE": 0,
+          "CARRY": 0,
+          "HOLD": 0,
+          "CLEARANCE": 0
+        }
+      },
+      "calibration_bins": [
+        {
+          "bin_range": "0.9-1.0",
+          "count": 3080,
+          "bin_accuracy": 1.0,
+          "bin_confidence": 0.919
+        }
+      ]
+    },
+    "artifact_paths": {},
+    "notes": "Full system evaluation with ECE, Brier score, and Macro F1"
+  }
+]

@@ -1,0 +1,3 @@
+run_id,timestamp,experiment_name,epochs,lr,hidden_size,val_accuracy,val_loss,ece,brier_score,log_loss,macro_f1
+run_20260817_230651,2026-08-17T23:06:51.024746,FootballTemporalLSTM_Action_Training,15,0.002,64,1.0,0.0846,,,,
+run_20260817_230746,2026-08-17T23:07:46.541655,FootballMind_Full_Model_Evaluation,,,,1.0,,0.0813,0.0076,0.0848,0.125

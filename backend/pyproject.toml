@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "footballmind"
+version = "0.1.0"
+description = "A Multimodal Deep Learning Framework for Predictive, Tactical and Explainable Football Intelligence"
+authors = [{ name = "FootballMind AI Team" }]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "torch",
+    "ultralytics",
+    "opencv-python",
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "pyyaml"
+]
+
+[project.scripts]
+footballmind = "footballmind.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["footballmind*", "src*", "backend*", "training*"]
+
+[tool.pyright]
+include = ["."]
+executionEnvironments = [
+  { root = "." }
+]
+extraPaths = ["."]
+
+[tool.mypy]
+pythonpath = "."
+explicit_package_bases = true
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+python_files = "test_*.py"
+
