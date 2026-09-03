@@ -110,13 +110,81 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 3. Model Training & Scientific Evaluation
+### 3. YOLO11m Vision Perception & Training Pipeline
+
+FootballMind uses **Ultralytics YOLO11m** as the default object detection model for player, referee, goalkeeper, and small-object football detection.
+
+#### Dataset Preparation (Roboflow / Ultralytics)
+Export your dataset from Roboflow in **YOLOv11** or **YOLOv8 PyTorch** format. Ensure `datasets/data.yaml` defines `train`, `val`, and `names`:
+```yaml
+path: datasets/
+train: train/images
+val: val/images
+test: test/images # optional
+names:
+  0: ball
+  1: goalkeeper
+  2: player
+  3: referee
+```
+
+#### Training YOLO11m Detector
 ```bash
-# 1. Train PyTorch Temporal LSTM Action Predictor (15 epochs)
+# 1. Validate dataset without training (Dry Run)
+python -m training.train_detector --dry-run --data datasets/data.yaml
+
+# 2. Train YOLO11m on Roboflow dataset (Default: model=yolo11m.pt, imgsz=1280, epochs=100)
+python -m training.train_detector --data datasets/data.yaml --model yolo11m.pt --imgsz 1280 --epochs 100 --batch 16
+
+# Or using the FootballMind CLI
+footballmind train-detector --data datasets/data.yaml --model yolo11m.pt
+```
+*Note: Hardware auto-scaling automatically reduces batch size (e.g. 4) and resolution if GPU memory is constrained or on CPU.*
+
+#### Evaluating Detector & Latency Benchmarks
+```bash
+# Evaluate on dataset (Precision, Recall, mAP50, mAP50-95, Ball Recall, Player Recall)
+python -m training.evaluate_detector --data datasets/data.yaml --model yolo11m.pt
+
+# Run Latency & Throughput Benchmark
+python -m training.evaluate_detector --benchmark-only --model yolo11m.pt
+
+# Train PyTorch Temporal LSTM Action Predictor (15 epochs)
 python -m training.train_action
 
-# 2. Run Scientific Model Evaluation (Accuracy, ECE, Brier Score, F1, Confusion Matrix)
+# Run Full Model & Vision Evaluation Suite
 python -m training.evaluate
+```
+
+#### Image & Video Inference Commands
+```bash
+# Run detection on a single image file (Local YOLO11m)
+footballmind detect-image path/to/frame.jpg --model yolo11m.pt --conf 0.35 --ball-conf 0.20
+
+# Run Roboflow Hosted Serverless Workflow (general-segmentation-api) on an image
+footballmind roboflow-workflow path/to/frame.jpg
+
+# Process and annotate video clip with tactical overlays
+footballmind process-video path/to/match.mp4 --output outputs/annotated_match.mp4 --max-frames 200
+```
+
+#### Roboflow Hosted Serverless Workflow Integration
+You can use Roboflow's Serverless Workflow API (`inference-sdk`) as an enhanced cloud segmentation backend:
+```python
+from src.vision.roboflow_client import RoboflowWorkflowClient
+
+client = RoboflowWorkflowClient(
+    api_url="https://serverless.roboflow.com",
+    api_key="6iE3b3FVMQzewTLHfWDT",
+    workspace_name="k-p-shohil",
+    workflow_id="general-segmentation-api"
+)
+
+# Run workflow on an image file or numpy frame
+result = client.run_workflow_on_image("path/to/frame.jpg")
+
+# Directly extract normalized FootballMind DetectedObject structures
+detections = client.detect_frame(frame)
 ```
 
 ### 4. Launch FastAPI Backend & Next.js Tactical Dashboard
@@ -257,7 +325,7 @@ footballmind/
 │   └── RESEARCH_CONTRIBUTION.md # Research novelty & scientific contributions
 ├── experiments/              # Local experiment logs (JSON & CSV)
 ├── models/                   # Saved PyTorch model weights (`action_predictor.pt`)
-├── tests/                    # Pytest test suite (24 passing unit & integration tests)
+├── tests/                    # Pytest test suite (37 passing unit & integration tests)
 ├── training/                 # Model training and evaluation scripts
 ├── uploads/                  # Video upload storage and generated annotated MP4 files
 ├── .env.example              # Environment variables template
@@ -283,7 +351,7 @@ footballmind/
 [![Next.js 14](https://img.shields.io/badge/Next.js-14+-000000.svg)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6.svg)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4+-38B2AC.svg)](https://tailwindcss.com/)
-[![Pytest 24 Passed](https://img.shields.io/badge/Pytest-24%20Passed-brightgreen.svg)](tests/)
+[![Pytest 37 Passed](https://img.shields.io/badge/Pytest-37%20Passed-brightgreen.svg)](tests/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 

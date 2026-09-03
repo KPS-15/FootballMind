@@ -27,13 +27,14 @@ venv/
 
 # Environment & Models
 .env
-.env.example
 *.pt
 *.onnx
 *.safetensors
+*.cache
+runs/
+datasets/
 models/*.bin
 models/*.pt
-datasets/raw/
 uploads/
 outputs/
 *.parquet

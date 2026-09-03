@@ -11,12 +11,23 @@ pitch:
   goal_depth: 2.44 # meters
 
 vision:
-  yolo_model: "yolov8m.pt"
+  yolo_model: "yolo11m.pt" # Default model: YOLO11m (configurable via FOOTBALLMIND_YOLO_MODEL env var or config.yaml)
   confidence_threshold: 0.35
+  ball_confidence_threshold: 0.20 # Specialized lower threshold for small football ball detection
   iou_threshold: 0.45
+  imgsz: 1280 # Default imgsz for fine-grained small object detection
   tracker_type: "bytetrack"
   fps_process: 15 # target processing FPS
   frame_skip: 2
+  use_roboflow_workflow: false # Set true to enable cloud Roboflow workflow segmentation
+
+roboflow:
+  api_url: "https://serverless.roboflow.com"
+  api_key: "6iE3b3FVMQzewTLHfWDT"
+  workspace_name: "k-p-shohil"
+  workflow_id: "general-segmentation-api"
+  classes: "ball, player, referee, goalkeeper"
+  use_cache: true
 
 data:
   demo_mode: true

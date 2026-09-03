@@ -31,16 +31,21 @@ include = ["footballmind*", "src*", "backend*", "training*"]
 
 [tool.pyright]
 include = ["."]
-executionEnvironments = [
-  { root = "." }
+extraPaths = [
+  ".",
+  "C:/Users/Admin/AppData/Local/Programs/Python/Python310/Lib/site-packages",
+  "C:/Users/Admin/AppData/Local/Programs/Python/Python310/Lib"
 ]
-extraPaths = ["."]
 
 [tool.mypy]
-pythonpath = "."
+pythonpath = [
+  ".",
+  "C:/Users/Admin/AppData/Local/Programs/Python/Python310/Lib/site-packages"
+]
 explicit_package_bases = true
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
 python_files = "test_*.py"
+

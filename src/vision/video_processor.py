@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from pathlib import Path
-from typing import List, Generator, Tuple
+from typing import List, Generator, Tuple, Optional, Dict, Any
 from src.vision.detector import FootballDetector
 from src.vision.tracker import FootballTracker
 from src.vision.team_classifier import TeamClassifier
@@ -18,8 +18,23 @@ class FootballVideoProcessor:
     team color classification, homography pitch coordinate mapping, and tactical frame assembly.
     """
 
-    def __init__(self, model_name: str = "yolov8m.pt", conf_thresh: float = 0.30):
-        self.detector = FootballDetector(model_name=model_name, conf_thresh=conf_thresh)
+    def __init__(
+        self,
+        model_name: Optional[str] = None,
+        conf_thresh: Optional[float] = None,
+        ball_conf_thresh: Optional[float] = None,
+        imgsz: Optional[int] = None,
+        device: Optional[str] = None,
+        config_path: str = "configs/config.yaml"
+    ):
+        self.detector = FootballDetector(
+            model_name=model_name,
+            conf_thresh=conf_thresh,
+            ball_conf_thresh=ball_conf_thresh,
+            imgsz=imgsz,
+            device=device,
+            config_path=config_path
+        )
         self.tracker = FootballTracker()
         self.team_classifier = TeamClassifier()
         self.ball_tracker = BallTracker()
@@ -182,8 +197,9 @@ class FootballVideoProcessor:
         fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
 
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out = cv2.VideoWriter(output_path, fourcc, fps, (w, h))
+        
+        # Collect annotated frames
+        annotated_frames: List[np.ndarray] = []
 
         frame_idx = 0
         while cap.isOpened() and frame_idx < len(tactical_frames):
@@ -246,10 +262,40 @@ class FootballVideoProcessor:
                     cv2.line(frame, d_pt, pt1, (249, 115, 22), 2, cv2.LINE_AA)
                     cv2.putText(frame, f"#{d.id} MARK #{carrier.id}", (d_pt[0] - 20, d_pt[1] - 12), cv2.FONT_HERSHEY_SIMPLEX, 0.42, (249, 115, 22), 2)
 
-            out.write(frame)
+            annotated_frames.append(frame)
             frame_idx += 1
 
         cap.release()
-        out.release()
-        print(f"[FootballVideoProcessor] Annotated video saved successfully to {output_path}")
+
+        # Write output video using PyAV (H.264/libx264 for native browser playback) with OpenCV fallback
+        wrote_pyav = False
+        try:
+            import av
+            container = av.open(output_path, mode="w")
+            stream = container.add_stream("libx264", rate=int(round(fps)))
+            stream.width = w
+            stream.height = h
+            stream.pix_fmt = "yuv420p"
+
+            for frm in annotated_frames:
+                av_frame = av.VideoFrame.from_ndarray(frm, format="bgr24")
+                for packet in stream.encode(av_frame):
+                    container.mux(packet)
+
+            for packet in stream.encode():
+                container.mux(packet)
+            container.close()
+            wrote_pyav = True
+            print(f"[FootballVideoProcessor] Native H.264 video saved via PyAV to {output_path}")
+        except Exception as err:
+            print(f"[FootballVideoProcessor] PyAV video encoding warning: {err}. Falling back to OpenCV VideoWriter.")
+
+        if not wrote_pyav:
+            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+            out = cv2.VideoWriter(output_path, fourcc, fps, (w, h))
+            for frm in annotated_frames:
+                out.write(frm)
+            out.release()
+            print(f"[FootballVideoProcessor] Annotated video saved via OpenCV to {output_path}")
+
         return tactical_frames
